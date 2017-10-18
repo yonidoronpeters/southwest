@@ -44,12 +44,12 @@ public class FlightValidator implements Validator
 	{
 		if (!airportCodeService.isValidCode(flight.getDepartureAirport()))
 		{
-			log.warn("Invalid origin airport {}", flight.getDepartureAirport());
+			log.warn("Invalid origin airport [{}]", flight.getDepartureAirport());
 			errors.rejectValue("departureAirport", "invalid.departure.airport");
 		}
 		if (!airportCodeService.isValidCode(flight.getDestinationAirport()))
 		{
-			log.warn("Invalid destination airport {}", flight.getDestinationAirport());
+			log.warn("Invalid destination airport [{}]", flight.getDestinationAirport());
 			errors.rejectValue("destinationAirport", "invalid.destination.airport");
 		}
 	}
@@ -60,7 +60,7 @@ public class FlightValidator implements Validator
 		if (flight.getDepartureTime() == null
 				|| flight.getDepartureTime().isBefore(LocalDateTime.now(timezone)))
 		{
-			log.warn("Invalid departure time {}", flight.getDepartureTime());
+			log.warn("Invalid departure time [{}] for origin airport [{}]", flight.getDepartureTime(), flight.getDepartureAirport());
 			errors.rejectValue("departureTime", "invalid.date");
 		}
 	}
