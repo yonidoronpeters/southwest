@@ -15,14 +15,14 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.AirportCodeService;
+import com.example.southwest.checkin.service.AirportService;
 
 @Component
 public class FlightValidator implements Validator
 {
 	private static final Logger log = LoggerFactory.getLogger(FlightValidator.class);
 	@Autowired
-	private AirportCodeService airportCodeService;
+	private AirportService airportService;
 
 	@Override
 	public boolean supports(final Class<?> aClass)
@@ -42,12 +42,12 @@ public class FlightValidator implements Validator
 
 	private void validateAirportCodes(final Flight flight, final Errors errors)
 	{
-		if (!airportCodeService.isValidCode(flight.getDepartureAirport()))
+		if (!airportService.isValidCode(flight.getDepartureAirport()))
 		{
 			log.warn("Invalid origin airport [{}]", flight.getDepartureAirport());
 			errors.rejectValue("departureAirport", "invalid.departure.airport");
 		}
-		if (!airportCodeService.isValidCode(flight.getDestinationAirport()))
+		if (!airportService.isValidCode(flight.getDestinationAirport()))
 		{
 			log.warn("Invalid destination airport [{}]", flight.getDestinationAirport());
 			errors.rejectValue("destinationAirport", "invalid.destination.airport");

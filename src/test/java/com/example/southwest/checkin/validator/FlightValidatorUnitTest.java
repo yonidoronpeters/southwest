@@ -22,14 +22,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.validation.BindException;
 
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.AirportCodeService;
+import com.example.southwest.checkin.service.AirportService;
 
 class FlightValidatorUnitTest
 {
 	@InjectMocks
 	private final FlightValidator flightValidator = new FlightValidator();
 	@Mock
-	private AirportCodeService airportCodeService;
+	private AirportService airportService;
 	private Flight flight;
 	private BindException errors;
 	
@@ -37,7 +37,7 @@ class FlightValidatorUnitTest
 	void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
-		doReturn(true).when(airportCodeService).isValidCode(anyString());
+		doReturn(true).when(airportService).isValidCode(anyString());
 		flight = flight();
 		errors = new BindException(flight, "flight");
 	}
@@ -75,7 +75,7 @@ class FlightValidatorUnitTest
 	@ValueSource(strings = {"DEN", "SFO", "SJC"})
 	void validAirports(final String airportCode)
 	{
-		doReturn(true).when(airportCodeService).isValidCode(airportCode);
+		doReturn(true).when(airportService).isValidCode(airportCode);
 
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isFalse();
@@ -87,7 +87,7 @@ class FlightValidatorUnitTest
 	{
 		flight.setDepartureAirport(airportCode);
 		flight.setDestinationAirport(airportCode);
-		doReturn(false).when(airportCodeService).isValidCode(airportCode);
+		doReturn(false).when(airportService).isValidCode(airportCode);
 
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isTrue();
