@@ -5,6 +5,7 @@
 package com.example.southwest.checkin.validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
@@ -38,6 +39,7 @@ class FlightValidatorUnitTest
 	{
 		MockitoAnnotations.initMocks(this);
 		doReturn(true).when(airportService).isValidCode(anyString());
+		doReturn(true).when(airportService).isValidDepartureTime(any(Flight.class));
 		flight = flight();
 		errors = new BindException(flight, "flight");
 	}
@@ -63,6 +65,7 @@ class FlightValidatorUnitTest
 	@MethodSource(value = "invalidDepartureTimes")
 	void invalidDepartureDateTime(final LocalDateTime dateTime)
 	{
+		doReturn(false).when(airportService).isValidDepartureTime(flight);
 		flight.setDepartureTime(dateTime);
 
 		flightValidator.validate(flight, errors);

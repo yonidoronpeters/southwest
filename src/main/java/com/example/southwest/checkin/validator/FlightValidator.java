@@ -3,9 +3,6 @@
  */
 package com.example.southwest.checkin.validator;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,18 +53,10 @@ public class FlightValidator implements Validator
 
 	private void validateDepartureTime(final Flight flight, final Errors errors)
 	{
-		final ZoneId timezone = getTimezone(flight.getDepartureAirport());
-		if (flight.getDepartureTime() == null
-				|| flight.getDepartureTime().isBefore(LocalDateTime.now(timezone)))
+		if (!airportService.isValidDepartureTime(flight))
 		{
 			log.warn("Invalid departure time [{}] for origin airport [{}]", flight.getDepartureTime(), flight.getDepartureAirport());
 			errors.rejectValue("departureTime", "invalid.date");
 		}
-	}
-
-	private ZoneId getTimezone(final String departureAirport)
-	{
-		// TODO need to implement
-		return ZoneId.systemDefault();
 	}
 }

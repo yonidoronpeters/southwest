@@ -4,18 +4,17 @@
 
 package com.example.southwest.checkin.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.example.southwest.checkin.model.Airport;
+import com.example.southwest.checkin.model.Flight;
 
+/**
+ *
+ */
 public interface AirportService
 {
-	List<Airport> getAll();
+	Airport getByCode(String code);
 
-	Airport getByCode();
+	boolean isValidCode(String code);
 
-	boolean isValidCode(final String code);
-
-	boolean isValidDepartureTime(final String code, final LocalDateTime departureTime);
+	boolean isValidDepartureTime(Flight flight);
 }
