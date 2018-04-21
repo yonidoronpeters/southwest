@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotEmpty;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 public class Flight
 {
 	@NotEmpty(message = "first name is required")
@@ -19,6 +21,7 @@ public class Flight
 	private String lastName;
 	@NotEmpty(message = "Confirmation # is required")
 	private String confirmationNumber;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private LocalDateTime departureTime;
 	@NotEmpty(message = "Departure airport is required")
 	private String departureAirport;
@@ -60,11 +63,6 @@ public class Flight
 	public LocalDateTime getDepartureTime()
 	{
 		return departureTime;
-	}
-
-	public void setDepartureTime(final String departureTime)
-	{
-		this.departureTime = LocalDateTime.parse(departureTime);
 	}
 
 	public void setDepartureTime(final LocalDateTime departureTime)
