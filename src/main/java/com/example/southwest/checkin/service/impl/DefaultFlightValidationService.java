@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.example.southwest.checkin.dto.Airport;
-import com.example.southwest.checkin.exception.InvalidAirportException;
 import com.example.southwest.checkin.model.Flight;
 import com.example.southwest.checkin.service.AirportCodeService;
 import com.example.southwest.checkin.service.FlightValidationService;
@@ -47,15 +46,7 @@ public class DefaultFlightValidationService implements FlightValidationService
 
 	private Airport getByCode(final String code)
 	{
-		try
-		{
-			return airportCodeService.getByCode(code);
-		}
-		catch (final InvalidAirportException e)
-		{
-			LOGGER.info("Airport with code [{}] does not exist.", code);
-			return new Airport();
-		}
+		return airportCodeService.getByCode(code);
 	}
 
 	private boolean isValidFlightTime(final Airport airport, final Flight flight)

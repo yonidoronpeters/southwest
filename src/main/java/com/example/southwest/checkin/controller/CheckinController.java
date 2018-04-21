@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.southwest.checkin.converter.FlightFormToModelConverter;
+import com.example.southwest.checkin.dto.FlightForm;
 import com.example.southwest.checkin.model.Flight;
 import com.example.southwest.checkin.validator.FlightValidator;
 
@@ -25,22 +27,25 @@ import com.example.southwest.checkin.validator.FlightValidator;
 public class CheckinController
 {
 	private final FlightValidator flightValidator;
+	private final FlightFormToModelConverter formToModelConverter;
 
-	public CheckinController(final FlightValidator flightValidator)
+	public CheckinController(final FlightValidator flightValidator, final FlightFormToModelConverter converter)
 	{
 		this.flightValidator = flightValidator;
+		this.formToModelConverter = converter;
 	}
 
 	@GetMapping("/flight")
 	public String checkinForm(final Model model)
 	{
-		model.addAttribute("flight", new Flight());
+		model.addAttribute("flightForm", new FlightForm());
 		return "flight";
 	}
 
 	@PostMapping("/flight")
-	public String flightSubmit(@Valid @ModelAttribute final Flight flight, final BindingResult result)
+	public String flightSubmit(@Valid @ModelAttribute final FlightForm flightForm, final BindingResult result)
 	{
+		Flight flight = formToModelConverter.convert(flightForm);
 		flightValidator.validate(flight, result);
 		if (result.hasErrors())
 		{

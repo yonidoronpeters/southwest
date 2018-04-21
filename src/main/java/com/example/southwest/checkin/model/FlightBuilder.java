@@ -47,12 +47,6 @@ public final class FlightBuilder
 		return this;
 	}
 
-	public FlightBuilder withDepartureTime(String departureTime)
-	{
-		this.departureTime = LocalDateTime.parse(departureTime);
-		return this;
-	}
-
 	public FlightBuilder withDepartureAirport(String departureAirport)
 	{
 		this.departureAirport = departureAirport;

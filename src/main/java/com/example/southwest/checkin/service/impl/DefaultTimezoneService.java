@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.southwest.checkin.dto.TimeZoneDTO;
-import com.example.southwest.checkin.exception.InvalidTimeZoneException;
 import com.example.southwest.checkin.service.TimezoneService;
 
 @Service
@@ -36,14 +35,15 @@ public class DefaultTimezoneService implements TimezoneService
 	@Override
 	public String getTimezone(final double latitude, final double longitude, final LocalDateTime dateTime)
 	{
-		final String queryUrl = new StringBuilder().append(url).append("location=").append(latitude).append(",").append(longitude).append("&apiKey=").append(apiKey).append("&timestamp=").append(dateTime.toEpochSecond(ZoneOffset.UTC)).toString();
+		int length = url.length() + apiKey.length() + 50;
+		final String queryUrl = new StringBuilder(length).append(url).append("location=").append(latitude).append(",").append(longitude).append("&apiKey=").append(apiKey).append("&timestamp=").append(dateTime.toEpochSecond(ZoneOffset.UTC)).toString();
 		final TimeZoneDTO timeZoneDTO = restTemplate.getForObject(URI.create(queryUrl), TimeZoneDTO.class);
-		if (timeZoneDTO == null || !"OK".equals(timeZoneDTO.getStatus()))
-		{
-			LOGGER.warn("Response code from google timezone api was {}", timeZoneDTO.getStatus());
-			throw new InvalidTimeZoneException("Cannot get timezone for coordinates (" + latitude + "," + longitude + ") at date: " + dateTime);
-		}
-		LOGGER.info("Successfully retrieved timezone: {} for coordinates ({}, {})", timeZoneDTO, latitude, longitude);
+//		if (timeZoneDTO == null || !"OK".equals(timeZoneDTO.getStatus()))
+//		{
+//			LOGGER.warn("Response code from google timezone api was {}", timeZoneDTO.getStatus());
+//			throw new InvalidTimeZoneException("Cannot get timezone for coordinates (" + latitude + "," + longitude + ") at date: " + dateTime);
+//		}
+		LOGGER.info("Retrieved timezone: {} for coordinates ({}, {})", timeZoneDTO, latitude, longitude);
 		return timeZoneDTO.getTimeZoneId();
 	}
 }
