@@ -5,21 +5,24 @@ package com.example.southwest.checkin.validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.AirportService;
+import com.example.southwest.checkin.service.FlightValidationService;
 
 @Component
 public class FlightValidator implements Validator
 {
-	private static final Logger log = LoggerFactory.getLogger(FlightValidator.class);
-	@Autowired
-	private AirportService airportService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightValidator.class);
+	private final FlightValidationService flightValidationService;
+
+	public FlightValidator(final FlightValidationService flightValidationService)
+	{
+		this.flightValidationService = flightValidationService;
+	}
 
 	@Override
 	public boolean supports(final Class<?> aClass)
@@ -33,29 +36,32 @@ public class FlightValidator implements Validator
 		assert o != null;
 
 		final Flight flight = (Flight) o;
-		validateDepartureTime(flight, errors);
 		validateAirportCodes(flight, errors);
+		if (!errors.hasErrors())
+		{
+			validateDepartureTime(flight, errors);
+		}
 	}
 
 	private void validateAirportCodes(final Flight flight, final Errors errors)
 	{
-		if (!airportService.isValidCode(flight.getDepartureAirport()))
+		if (!flightValidationService.isValidCode(flight.getDepartureAirport()))
 		{
-			log.warn("Invalid origin airport [{}]", flight.getDepartureAirport());
+			LOGGER.warn("Invalid origin airport [{}]", flight.getDepartureAirport());
 			errors.rejectValue("departureAirport", "invalid.departure.airport");
 		}
-		if (!airportService.isValidCode(flight.getDestinationAirport()))
+		if (!flightValidationService.isValidCode(flight.getDestinationAirport()))
 		{
-			log.warn("Invalid destination airport [{}]", flight.getDestinationAirport());
+			LOGGER.warn("Invalid destination airport [{}]", flight.getDestinationAirport());
 			errors.rejectValue("destinationAirport", "invalid.destination.airport");
 		}
 	}
 
 	private void validateDepartureTime(final Flight flight, final Errors errors)
 	{
-		if (!airportService.isValidDepartureTime(flight))
+		if (!flightValidationService.isValidDepartureTime(flight))
 		{
-			log.warn("Invalid departure time [{}] for origin airport [{}]", flight.getDepartureTime(), flight.getDepartureAirport());
+			LOGGER.warn("Invalid departure time [{}] for origin airport [{}]", flight.getDepartureTime(), flight.getDepartureAirport());
 			errors.rejectValue("departureTime", "invalid.date");
 		}
 	}

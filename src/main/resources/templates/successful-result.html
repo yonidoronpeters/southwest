@@ -8,7 +8,7 @@
 <!-- success -->
 <h1>Result</h1>
 <p th:text="'Good news, ' + ${flight.firstName} + '!'" />
-<p th:text="'We will check you in to your flight from ' + ${flight.departureAirport} + ' 24hrs before your flight'" />
+<p th:text="'We will check you in to your flight from ' + ${flight.departureAirport} + ' -> ' + ${flight.destinationAirport} + ' 24hrs before your flight'" />
 <a href="/flight">Check me in to another flight!</a>
 </body>
 </html>

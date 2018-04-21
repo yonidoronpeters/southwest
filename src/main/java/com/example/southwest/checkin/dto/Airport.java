@@ -1,7 +1,11 @@
 /*
  * @author ydp
  */
-package com.example.southwest.checkin.model;
+
+/*
+ * @author ydp
+ */
+package com.example.southwest.checkin.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,8 +21,6 @@ public class Airport
 	private String city;
 	@JsonProperty(value = "country")
 	private String country;
-	@JsonProperty(value = "timeZoneId")
-	private String timezone;
 	@JsonProperty(value = "latitude")
 	private double latitude;
 	@JsonProperty(value = "longitude")
@@ -64,16 +66,6 @@ public class Airport
 		this.country = country;
 	}
 
-	public String getTimezone()
-	{
-		return timezone;
-	}
-
-	public void setTimezone(final String timezone)
-	{
-		this.timezone = timezone;
-	}
-
 	public double getLatitude()
 	{
 		return latitude;
@@ -92,6 +84,11 @@ public class Airport
 	public void setLongitude(final double longitude)
 	{
 		this.longitude = longitude;
+	}
+
+	public boolean isValid()
+	{
+		return city != null;
 	}
 
 	@Override
@@ -125,7 +122,6 @@ public class Airport
 				", name='" + name + '\'' +
 				", city='" + city + '\'' +
 				", country='" + country + '\'' +
-				", timezone='" + timezone + '\'' +
 				", latitude=" + latitude +
 				", longitude=" + longitude +
 				'}';

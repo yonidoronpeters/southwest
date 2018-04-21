@@ -23,14 +23,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.validation.BindException;
 
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.AirportService;
+import com.example.southwest.checkin.service.FlightValidationService;
 
 class FlightValidatorUnitTest
 {
-	@InjectMocks
-	private final FlightValidator flightValidator = new FlightValidator();
 	@Mock
-	private AirportService airportService;
+	private FlightValidationService flightValidationService;
+	@InjectMocks
+	private FlightValidator flightValidator;
 	private Flight flight;
 	private BindException errors;
 	
@@ -38,8 +38,9 @@ class FlightValidatorUnitTest
 	void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
-		doReturn(true).when(airportService).isValidCode(anyString());
-		doReturn(true).when(airportService).isValidDepartureTime(any(Flight.class));
+		flightValidator = new FlightValidator(flightValidationService);
+		doReturn(true).when(flightValidationService).isValidCode(anyString());
+		doReturn(true).when(flightValidationService).isValidDepartureTime(any(Flight.class));
 		flight = flight();
 		errors = new BindException(flight, "flight");
 	}
@@ -65,7 +66,7 @@ class FlightValidatorUnitTest
 	@MethodSource(value = "invalidDepartureTimes")
 	void invalidDepartureDateTime(final LocalDateTime dateTime)
 	{
-		doReturn(false).when(airportService).isValidDepartureTime(flight);
+		doReturn(false).when(flightValidationService).isValidDepartureTime(flight);
 		flight.setDepartureTime(dateTime);
 
 		flightValidator.validate(flight, errors);
@@ -78,7 +79,7 @@ class FlightValidatorUnitTest
 	@ValueSource(strings = {"DEN", "SFO", "SJC"})
 	void validAirports(final String airportCode)
 	{
-		doReturn(true).when(airportService).isValidCode(airportCode);
+		doReturn(true).when(flightValidationService).isValidCode(airportCode);
 
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isFalse();
@@ -90,7 +91,7 @@ class FlightValidatorUnitTest
 	{
 		flight.setDepartureAirport(airportCode);
 		flight.setDestinationAirport(airportCode);
-		doReturn(false).when(airportService).isValidCode(airportCode);
+		doReturn(false).when(flightValidationService).isValidCode(airportCode);
 
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isTrue();

@@ -5,70 +5,48 @@
 package com.example.southwest.checkin.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.example.southwest.checkin.dto.Airport;
+import com.example.southwest.checkin.dto.AirportBuilder;
 import com.example.southwest.checkin.exception.InvalidAirportException;
-import com.example.southwest.checkin.model.Airport;
-import com.example.southwest.checkin.model.AirportBuilder;
 import com.example.southwest.checkin.model.FlightBuilder;
 import com.example.southwest.checkin.service.AirportCodeService;
-import com.example.southwest.checkin.service.AirportService;
+import com.example.southwest.checkin.service.FlightValidationService;
 import com.example.southwest.checkin.service.TimezoneService;
 
-class DefaultAirportServiceUnitTest
+class DefaultFlightValidationServiceUnitTest
 {
 	private static final String CODE = "JFK";
 	private static final String NY_TIMEZONE = "America/New_York";
-	@InjectMocks
-	private final AirportService service = new DefaultAirportService();
 	@Mock
 	private AirportCodeService airportCodeService;
 	@Mock
 	private TimezoneService timezoneService;
+	private FlightValidationService service;
 	private final Airport airport = airport();
 
 	@BeforeEach
 	void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
+		service = new DefaultFlightValidationService(airportCodeService, timezoneService);
 	}
 
 	@Test
-	void getByCodeWithValidAirportCode()
-	{
-		givenAirportExist();
-
-		final Airport foundAirport = service.getByCode(CODE);
-
-		verify(timezoneService).getTimezone(airport.getLatitude(), airport.getLongitude());
-		assertThat(airport).isEqualTo(foundAirport);
-	}
-
-	@Test
-	void getByCodeInvalidAirportCode()
-	{
-		givenAirportDoesNotExist();
-
-		assertThatThrownBy(() -> service.getByCode("ZZZ"))
-				.isInstanceOf(InvalidAirportException.class);
-	}
-
-	@Test
-	void isValidCode()
+	void isValidCode() throws InvalidAirportException
 	{
 		givenAirportExist();
 
@@ -78,7 +56,7 @@ class DefaultAirportServiceUnitTest
 	}
 
 	@Test
-	void isInvalidCode()
+	void isInvalidCode() throws InvalidAirportException
 	{
 		givenAirportDoesNotExist();
 
@@ -88,9 +66,9 @@ class DefaultAirportServiceUnitTest
 	}
 
 	@Test
-	void isValidDepartureTime()
+	void isValidDepartureTime() throws InvalidAirportException
 	{
-		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble());
+		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble(), any());
 		givenAirportExist();
 
 		final boolean isValid = service.isValidDepartureTime(flight()
@@ -102,9 +80,9 @@ class DefaultAirportServiceUnitTest
 	}
 
 	@Test
-	void isInvalidDepartureTime()
+	void isInvalidDepartureTime() throws InvalidAirportException
 	{
-		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble());
+		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble(), any());
 		givenAirportExist();
 
 		final boolean isValid = service.isValidDepartureTime(flight()
@@ -115,15 +93,28 @@ class DefaultAirportServiceUnitTest
 		assertThat(isValid).isFalse();
 	}
 
-	private void givenAirportDoesNotExist()
+	@Test
+	void isInvalidDepartureTime_Null() throws InvalidAirportException
+	{
+		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble(), any());
+		givenAirportExist();
+
+		final boolean isValid = service.isValidDepartureTime(flight()
+				.withDepartureTime((LocalDateTime) null)
+				.build());
+
+		assertThat(isValid).isFalse();
+	}
+
+	private void givenAirportDoesNotExist() throws InvalidAirportException
 	{
 		doThrow(new InvalidAirportException("Expected")).when(airportCodeService).getByCode(anyString());
 	}
 
-	private void givenAirportExist()
+	private void givenAirportExist() throws InvalidAirportException
 	{
 		doReturn(airport).when(airportCodeService).getByCode(CODE);
-		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble());
+		doReturn(NY_TIMEZONE).when(timezoneService).getTimezone(anyDouble(), anyDouble(), any());
 	}
 
 	private Airport airport()

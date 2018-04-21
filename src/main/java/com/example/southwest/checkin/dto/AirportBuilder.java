@@ -1,7 +1,11 @@
 /*
  * @author ydp
  */
-package com.example.southwest.checkin.model;
+
+/*
+ * @author ydp
+ */
+package com.example.southwest.checkin.dto;
 
 public final class AirportBuilder
 {
@@ -71,7 +75,6 @@ public final class AirportBuilder
 		airport.setName(name);
 		airport.setCity(city);
 		airport.setCountry(country);
-		airport.setTimezone(timezone);
 		airport.setLatitude(latitude);
 		airport.setLongitude(longitude);
 		return airport;

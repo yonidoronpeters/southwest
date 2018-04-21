@@ -6,6 +6,12 @@
 </head>
 <body>
 <h1>Flight info</h1>
+<div th:if="${#fields.hasErrors('${flight.*}')}" id="error-panel">
+	The following errors occurred:
+	<ul>
+  		<li th:each="err : ${#fields.errors('${flight.*}')}" th:text="${err}" />
+	</ul>
+</div>
 <form action="#" th:action="@{/flight}" th:object="${flight}" method="post">
 	<p>First Name: <input type="text" th:field="*{firstName}" /></p>
 	<p>Last Name: <input type="text" th:field="*{lastName}" /></p>

@@ -19,26 +19,27 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.southwest.checkin.dto.Airport;
+import com.example.southwest.checkin.dto.AirportBuilder;
 import com.example.southwest.checkin.exception.InvalidAirportException;
-import com.example.southwest.checkin.model.Airport;
-import com.example.southwest.checkin.model.AirportBuilder;
 
 class DefaultAirportCodeServiceUnitTest
 {
 	private static final String CODE = "COD";
-	@InjectMocks
-	private final DefaultAirportCodeService service = new DefaultAirportCodeService();
 	@Mock
 	private RestTemplate restTemplate;
+	@InjectMocks
+	private DefaultAirportCodeService service;
 
 	@BeforeEach
 	void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
+		service = new DefaultAirportCodeService(restTemplate);
 	}
 
 	@Test
-	void airportCodeExists()
+	void airportCodeExists() throws InvalidAirportException
 	{
 		doReturn(airport()).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
 
@@ -49,9 +50,18 @@ class DefaultAirportCodeServiceUnitTest
 	}
 
 	@Test
-	void invalidAirportCode()
+	void nullAirport()
 	{
 		doReturn(null).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
+
+		assertThatThrownBy(() -> service.getByCode(CODE))
+				.isExactlyInstanceOf(InvalidAirportException.class);
+	}
+
+	@Test
+	void invalidAirport()
+	{
+		doReturn(new Airport()).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
 
 		assertThatThrownBy(() -> service.getByCode(CODE))
 				.isExactlyInstanceOf(InvalidAirportException.class);
