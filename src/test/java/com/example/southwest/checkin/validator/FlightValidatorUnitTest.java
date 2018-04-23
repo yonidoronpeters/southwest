@@ -5,44 +5,42 @@
 package com.example.southwest.checkin.validator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.validation.BindException;
 
+import com.example.southwest.checkin.dto.Airport;
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.FlightValidationService;
 
 class FlightValidatorUnitTest
 {
-	@Mock
-	private FlightValidationService flightValidationService;
-	@InjectMocks
-	private FlightValidator flightValidator;
+	private static final String AMERICA_NEW_YORK = "America/New_York";
+	private final FlightValidator flightValidator = new FlightValidator();
 	private Flight flight;
 	private BindException errors;
+	@Mock
+	private Airport origin;
+	@Mock
+	private Airport destination;
 	
 	@BeforeEach
 	void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
-		flightValidator = new FlightValidator(flightValidationService);
-		doReturn(true).when(flightValidationService).isValidCode(anyString());
-		doReturn(true).when(flightValidationService).isValidDepartureTime(any(Flight.class));
 		flight = flight();
 		errors = new BindException(flight, "flight");
+		when(origin.getName()).thenReturn("origin");
+		when(destination.getName()).thenReturn("destination");
 	}
 
 	@Test
@@ -66,7 +64,6 @@ class FlightValidatorUnitTest
 	@MethodSource(value = "invalidDepartureTimes")
 	void invalidDepartureDateTime(final LocalDateTime dateTime)
 	{
-		doReturn(false).when(flightValidationService).isValidDepartureTime(flight);
 		flight.setDepartureTime(dateTime);
 
 		flightValidator.validate(flight, errors);
@@ -75,23 +72,18 @@ class FlightValidatorUnitTest
 		assertThat(errors.getFieldError("departureTime").getCode()).isEqualTo("invalid.date");
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = {"DEN", "SFO", "SJC"})
-	void validAirports(final String airportCode)
+	@Test
+	void validAirports()
 	{
-		doReturn(true).when(flightValidationService).isValidCode(airportCode);
-
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isFalse();
 	}
 
-	@ParameterizedTest
-	@ValueSource(strings = {"jakldsj", "james", "Hello", "null"})
-	void invalidAirports(final String airportCode)
+	@Test
+	void invalidAirports()
 	{
-		flight.setDepartureAirport(airportCode);
-		flight.setDestinationAirport(airportCode);
-		doReturn(false).when(flightValidationService).isValidCode(airportCode);
+		when(origin.getName()).thenReturn(null);
+		when(destination.getName()).thenReturn(null);
 
 		flightValidator.validate(flight, errors);
 		assertThat(errors.hasErrors()).isTrue();
@@ -103,29 +95,35 @@ class FlightValidatorUnitTest
 	private static Stream<LocalDateTime> validDepartureTimes()
 	{
 		return Stream.of(
-				LocalDateTime.now().plusSeconds(1),
-				LocalDateTime.now().plusDays(1),
-				LocalDateTime.now().plusMonths(2));
+				now().plusSeconds(1),
+				now().plusDays(1),
+				now().plusMonths(2));
 	}
 
 	private static Stream<LocalDateTime> invalidDepartureTimes()
 	{
 		return Stream.of(
 				null,
-				LocalDateTime.now().minusSeconds(3),
-				LocalDateTime.now().minusDays(1),
-				LocalDateTime.now().minusMonths(5));
+				now().minusSeconds(3),
+				now().minusDays(1),
+				now().minusMonths(5));
+	}
+
+	private static LocalDateTime now()
+	{
+		return LocalDateTime.now(ZoneId.of(AMERICA_NEW_YORK));
 	}
 
 	private Flight flight()
 	{
 		final Flight flight = new Flight();
-		flight.setDepartureTime(LocalDateTime.now().plusDays(1));
+		flight.setDepartureTime(now().plusDays(1));
 		flight.setConfirmationNumber("123ABC");
-		flight.setDepartureAirport("SFO");
-		flight.setDestinationAirport("JFK");
+		flight.setDepartureAirport(origin);
+		flight.setDestinationAirport(destination);
 		flight.setFirstName("John");
 		flight.setLastName("Doe");
+		flight.setTimezone(AMERICA_NEW_YORK);
 		return flight;
 	}
 }

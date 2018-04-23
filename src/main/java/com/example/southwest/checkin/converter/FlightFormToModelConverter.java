@@ -37,7 +37,7 @@ public class FlightFormToModelConverter implements Converter<FlightForm, Flight>
 //				.withDestinationAirport(destination)
 //				.withEmail(flightForm.getEmail())
 //				.withPhoneNumber(flightForm.getPhoneNumber())
-//				.withDepartureTimezone(timezoneService.getTimezone(
+//				.withOriginTimezone(timezoneService.getTimezone(
 //						departure.getLatitude(),
 //						departure.getLongitude(),
 //						flightForm.getDepartureTime()))

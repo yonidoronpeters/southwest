@@ -5,7 +5,6 @@
 package com.example.southwest.checkin.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -21,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.example.southwest.checkin.dto.Airport;
 import com.example.southwest.checkin.dto.AirportBuilder;
-import com.example.southwest.checkin.exception.InvalidAirportException;
 
 class DefaultAirportCodeServiceUnitTest
 {
@@ -39,7 +37,7 @@ class DefaultAirportCodeServiceUnitTest
 	}
 
 	@Test
-	void airportCodeExists() throws InvalidAirportException
+	void airportCodeExists()
 	{
 		doReturn(airport()).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
 
@@ -50,21 +48,13 @@ class DefaultAirportCodeServiceUnitTest
 	}
 
 	@Test
-	void nullAirport()
-	{
-		doReturn(null).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
-
-		assertThatThrownBy(() -> service.getByCode(CODE))
-				.isExactlyInstanceOf(InvalidAirportException.class);
-	}
-
-	@Test
 	void invalidAirport()
 	{
 		doReturn(new Airport()).when(restTemplate).getForObject(any(URI.class), eq(Airport.class));
 
-		assertThatThrownBy(() -> service.getByCode(CODE))
-				.isExactlyInstanceOf(InvalidAirportException.class);
+		final Airport airport = service.getByCode(CODE);
+		assertThat(airport).isNotNull();
+		assertThat(airport.getName()).isNull();
 	}
 
 	private Airport airport()

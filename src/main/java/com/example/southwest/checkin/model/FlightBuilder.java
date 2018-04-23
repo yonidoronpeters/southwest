@@ -5,14 +5,17 @@ package com.example.southwest.checkin.model;
 
 import java.time.LocalDateTime;
 
+import com.example.southwest.checkin.dto.Airport;
+
 public final class FlightBuilder
 {
 	private String firstName;
 	private String lastName;
 	private String confirmationNumber;
 	private LocalDateTime departureTime;
-	private String departureAirport;
-	private String destinationAirport;
+	private Airport departureAirport;
+	private Airport destinationAirport;
+	private String timezone;
 
 	private FlightBuilder()
 	{
@@ -47,27 +50,34 @@ public final class FlightBuilder
 		return this;
 	}
 
-	public FlightBuilder withDepartureAirport(String departureAirport)
+	public FlightBuilder withDepartureAirport(Airport departureAirport)
 	{
 		this.departureAirport = departureAirport;
 		return this;
 	}
 
-	public FlightBuilder withDestinationAirport(String destinationAirport)
+	public FlightBuilder withDestinationAirport(Airport destinationAirport)
 	{
 		this.destinationAirport = destinationAirport;
 		return this;
 	}
 
+	public FlightBuilder withOriginTimezone(String timezone)
+	{
+		this.timezone = timezone;
+		return this;
+	}
+
 	public Flight build()
 	{
-		Flight flight = new Flight();
+		final Flight flight = new Flight();
 		flight.setFirstName(firstName);
 		flight.setLastName(lastName);
 		flight.setConfirmationNumber(confirmationNumber);
 		flight.setDepartureTime(departureTime);
 		flight.setDepartureAirport(departureAirport);
 		flight.setDestinationAirport(destinationAirport);
+		flight.setTimezone(timezone);
 		return flight;
 	}
 }

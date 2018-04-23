@@ -8,27 +8,47 @@
 package com.example.southwest.checkin.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-import javax.validation.constraints.NotEmpty;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import com.example.southwest.checkin.dto.Airport;
 
+@Entity
 public class Flight
 {
-	@NotEmpty(message = "first name is required")
+	@Id
+	private UUID id;
+	@Column
 	private String firstName;
-	@NotEmpty(message = "Last name is required")
+	@Column
 	private String lastName;
-	@NotEmpty(message = "Confirmation # is required")
+	@Column
 	private String confirmationNumber;
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@Column
 	private LocalDateTime departureTime;
-	@NotEmpty(message = "Departure airport is required")
-	private String departureAirport;
-	@NotEmpty(message = "Destination airport is required")
-	private String destinationAirport;
-	private String timeZone;
+	@Column
+	private Airport departureAirport;
+	@Column
+	private Airport destinationAirport;
+	@Column
+	private String timezone;
+	@Column
+	private String email;
+	@Column
+	private String phoneNumber;
 
+	public UUID getId()
+	{
+		return id;
+	}
+
+	public void setId(final UUID id)
+	{
+		this.id = id;
+	}
 
 	public String getFirstName()
 	{
@@ -70,34 +90,54 @@ public class Flight
 		this.departureTime = departureTime;
 	}
 
-	public String getDepartureAirport()
+	public Airport getDepartureAirport()
 	{
 		return departureAirport;
 	}
 
-	public void setDepartureAirport(final String departureAirport)
+	public void setDepartureAirport(final Airport departureAirport)
 	{
 		this.departureAirport = departureAirport;
 	}
 
-	public String getDestinationAirport()
+	public Airport getDestinationAirport()
 	{
 		return destinationAirport;
 	}
 
-	public void setDestinationAirport(final String destinationAirport)
+	public void setDestinationAirport(final Airport destinationAirport)
 	{
 		this.destinationAirport = destinationAirport;
 	}
 
-	public String getTimeZone()
+	public String getTimezone()
 	{
-		return timeZone;
+		return timezone;
 	}
 
-	public void setTimeZone(final String timeZone)
+	public void setTimezone(final String timezone)
 	{
-		this.timeZone = timeZone;
+		this.timezone = timezone;
+	}
+
+	public String getEmail()
+	{
+		return email;
+	}
+
+	public void setEmail(final String email)
+	{
+		this.email = email;
+	}
+
+	public String getPhoneNumber()
+	{
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(final String phoneNumber)
+	{
+		this.phoneNumber = phoneNumber;
 	}
 
 	@Override

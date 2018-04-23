@@ -3,6 +3,9 @@
  */
 package com.example.southwest.checkin.validator;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
@@ -10,19 +13,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.example.southwest.checkin.dto.Airport;
 import com.example.southwest.checkin.model.Flight;
-import com.example.southwest.checkin.service.FlightValidationService;
 
 @Component
 public class FlightValidator implements Validator
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlightValidator.class);
-	private final FlightValidationService flightValidationService;
-
-	public FlightValidator(final FlightValidationService flightValidationService)
-	{
-		this.flightValidationService = flightValidationService;
-	}
 
 	@Override
 	public boolean supports(final Class<?> aClass)
@@ -45,24 +42,34 @@ public class FlightValidator implements Validator
 
 	private void validateAirportCodes(final Flight flight, final Errors errors)
 	{
-		if (!flightValidationService.isValidCode(flight.getDepartureAirport()))
+		if (!isValidCode(flight.getDepartureAirport()))
 		{
 			LOGGER.warn("Invalid origin airport [{}]", flight.getDepartureAirport());
 			errors.rejectValue("departureAirport", "invalid.departure.airport");
 		}
-		if (!flightValidationService.isValidCode(flight.getDestinationAirport()))
+		if (!isValidCode(flight.getDestinationAirport()))
 		{
 			LOGGER.warn("Invalid destination airport [{}]", flight.getDestinationAirport());
 			errors.rejectValue("destinationAirport", "invalid.destination.airport");
 		}
 	}
 
+	private boolean isValidCode(final Airport airport)
+	{
+		return airport.getName() != null;
+	}
+
 	private void validateDepartureTime(final Flight flight, final Errors errors)
 	{
-		if (!flightValidationService.isValidDepartureTime(flight))
+		if (flight.getDepartureTime() == null || !isFlightInTheFuture(flight))
 		{
-			LOGGER.warn("Invalid departure time [{}] for origin airport [{}]", flight.getDepartureTime(), flight.getDepartureAirport());
+			LOGGER.warn("Departure time [{}] for flight {} is in the past}", flight.getDepartureTime(), flight.getDepartureAirport());
 			errors.rejectValue("departureTime", "invalid.date");
 		}
+	}
+
+	private boolean isFlightInTheFuture(final Flight flight)
+	{
+		return LocalDateTime.now(ZoneId.of(flight.getTimezone())).isBefore(flight.getDepartureTime());
 	}
 }
