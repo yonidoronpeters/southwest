@@ -7,12 +7,17 @@
  */
 package com.example.southwest.checkin.dto;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
 public class Airport
 {
+	@Id
 	@JsonProperty(value = "iata")
 	private String code;
 	@JsonProperty(value = "name")

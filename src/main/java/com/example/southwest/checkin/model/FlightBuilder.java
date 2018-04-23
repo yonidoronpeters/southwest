@@ -16,6 +16,8 @@ public final class FlightBuilder
 	private Airport departureAirport;
 	private Airport destinationAirport;
 	private String timezone;
+	private String email;
+	private String phoneNumber;
 
 	private FlightBuilder()
 	{
@@ -68,6 +70,20 @@ public final class FlightBuilder
 		return this;
 	}
 
+	public FlightBuilder withEmail(String email)
+	{
+		this.email = email;
+		return this;
+	}
+
+	public FlightBuilder withPhoneNumber(String phoneNumber)
+	{
+		this.phoneNumber = phoneNumber;
+		return this;
+	}
+
+
+
 	public Flight build()
 	{
 		final Flight flight = new Flight();
@@ -78,6 +94,8 @@ public final class FlightBuilder
 		flight.setDepartureAirport(departureAirport);
 		flight.setDestinationAirport(destinationAirport);
 		flight.setTimezone(timezone);
+		flight.setEmail(email);
+		flight.setPhoneNumber(phoneNumber);
 		return flight;
 	}
 }

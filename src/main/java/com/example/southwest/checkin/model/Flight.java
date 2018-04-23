@@ -8,44 +8,50 @@
 package com.example.southwest.checkin.model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import com.example.southwest.checkin.dto.Airport;
 
 @Entity
+@Table(indexes = {@Index(name = "Idx_confirmation",  columnList="confirmationNumber", unique = true)})
 public class Flight
 {
 	@Id
-	private UUID id;
-	@Column
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
+	@Column(nullable = false)
 	private String firstName;
-	@Column
+	@Column(nullable = false)
 	private String lastName;
-	@Column
+	@Column(nullable = false)
 	private String confirmationNumber;
-	@Column
+	@Column(nullable = false)
 	private LocalDateTime departureTime;
-	@Column
+	@ManyToOne(targetEntity = Airport.class)
 	private Airport departureAirport;
-	@Column
+	@ManyToOne(targetEntity = Airport.class)
 	private Airport destinationAirport;
-	@Column
+	@Column(nullable = false)
 	private String timezone;
-	@Column
 	private String email;
-	@Column
 	private String phoneNumber;
 
-	public UUID getId()
+	public Flight() {}
+
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(final UUID id)
+	public void setId(final Long id)
 	{
 		this.id = id;
 	}
