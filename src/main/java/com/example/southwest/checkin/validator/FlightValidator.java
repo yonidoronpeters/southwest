@@ -63,7 +63,7 @@ public class FlightValidator implements Validator
 	{
 		if (flight.getDepartureTime() == null || !isFlightInTheFuture(flight))
 		{
-			LOGGER.warn("Departure time [{}] for flight {} is in the past}", flight.getDepartureTime(), flight.getDepartureAirport());
+			LOGGER.warn("Departure time [{}] for flight {} is in the past or invalid.", flight.getDepartureTime(), flight);
 			errors.rejectValue("departureTime", "invalid.date");
 		}
 	}

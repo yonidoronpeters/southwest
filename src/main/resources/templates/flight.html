@@ -9,7 +9,7 @@
 <div th:if="${#fields.hasErrors('${flightForm.*}')}" id="error-panel">
 	The following errors occurred:
 	<ul>
-  		<li th:each="err : ${#fields.errors('${flight.*}')}" th:text="${err}" />
+  		<li th:each="err : ${#fields.errors('${flightForm.*}')}" th:text="${err}" />
 	</ul>
 </div>
 <form action="#" th:action="@{/flight}" th:object="${flightForm}" method="post">

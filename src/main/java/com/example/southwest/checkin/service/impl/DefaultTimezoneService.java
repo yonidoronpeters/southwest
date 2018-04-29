@@ -36,6 +36,10 @@ public class DefaultTimezoneService implements TimezoneService
 	@Override
 	public String getTimezone(final double latitude, final double longitude, final LocalDateTime dateTime)
 	{
+		if (dateTime == null)
+		{
+			return null;
+		}
 		final String queryUrl = new StringBuilder(150).append(url).append("location=").append(latitude).append(",").append(longitude).append("&apiKey=").append(apiKey).append("&timestamp=").append(dateTime.toEpochSecond(ZoneOffset.UTC)).toString();
 		final TimeZoneDTO timeZoneDTO = restTemplate.getForObject(URI.create(queryUrl), TimeZoneDTO.class);
 		if (timeZoneDTO == null || !"OK".equals(timeZoneDTO.getStatus()))

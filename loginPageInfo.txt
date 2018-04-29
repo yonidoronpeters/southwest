@@ -7,3 +7,74 @@ checkin page:
 
 if checkin page fails:
 <div class="page-error page-error_results notifications--item" tabindex="-1"><div type="error" class="message message_alert message_error"><span class="swa-icon swa-icon_extra-large swa-icon_error message--icon" icon="swa-icon_error" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span><div class="message--content"><h2 class="heading heading_medium message--title">Flight restricted to airport check-in.</h2><ul class="page-error--list"><li class="page-error--message">This flight has been restricted to airport check-in only. Please proceed to the airport and check in at a skycap, kiosk, ticket counter, or the gate.</li></ul><div class="drawer accordion-panel accordion-panel_background-disabled accordion-panel_primary accordion-panel_toggle-right page-error--details"><div class="tool-bar accordion-panel--toolbar"><div class="accordion-panel--toolbar-content"><div class="accordion-panel--separator"></div></div><div class="accordion-panel--toggle" style="right: 20px; top: -5.5px;"><button class="actionable actionable_button actionable_suffix actionable_light-simple button accordion-panel--toggle-trigger" aria-controls="Drawer_9" aria-expanded="false" type="button"><span class="actionable--text"><span class="accordion-panel--toggle-trigger-label">Error details</span></span><span class="swa-icon swa-icon_extra-small swa-icon_arrow-down actionable--icon actionable--icon_suffix actionable--icon_medium-gap" icon="arrow-down" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span></button></div></div><div class="collapsible-area accordion-panel--collapsible" aria-expanded="false" id="Drawer_9" role="region"></div></div></div></div></div>
+
+
+- confirmation #
+- first name
+- last name
+
+required by app:
+- departure airport
+- departure time
+- 3 fields above
+perhaps mandatory: email/phone number. Alternatively user could log in to get boarding pass
+
+
+* checkin form submit button:
+* <button aria-label="Check in button. In the event of an error, focus will move to the error message. Important information on the next heading." id="form-mixin--submit-button" class="actionable actionable_button actionable_large-button actionable_no-outline actionable_primary button submit-button confirmation-number-form--submit-button" type="button"><span class="actionable--text"><span class="submit-button--text">Check in</span></span></button>
+
+
+* Approve button
+* <button aria-label="By clicking &quot;Check in&quot;, you acknowledge that you understand the hazardous materials restrictions and penalties.Check in" class="actionable actionable_button actionable_large-button actionable_no-outline actionable_primary button submit-button air-check-in-review-results--check-in-button" type="button" data-a="airCheckInReviewResults_checkIn"><span class="actionable--text"><span class="submit-button--text">Check in</span></span></button>
+
+
+EMAIL
+* email button:
+* <button aria-label="email my boarding Pass document(s)  opens pop up" class="actionable actionable_button actionable_full-width actionable_large-button actionable_no-outline actionable_prefix actionable_secondary-dark-affix button boarding-pass-options--button-email" type="button" data-a="airCheckInBoardingPassOption_button_mobileBoardingPassOption_email"><span class="swa-icon swa-icon_laptop actionable--icon actionable--icon_prefix actionable--icon_medium-gap" icon="laptop" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span><span class="actionable--text">Email</span></button>
+* email text field:
+* <input id="emailBoardingPass" maxlength="100" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" aria-required="true" class="input--text" width="large">
+* send email button:
+* <button aria-label="Send boarding document(s)" id="form-mixin--submit-button" class="actionable actionable_button actionable_no-outline actionable_primary button submit-button" type="button"><span class="actionable--text"><span class="submit-button--text">Send</span></span></button>
+
+After email/text is sent, there is a green text field screen, need to click on background to dismiss:
+* <div class="message message_alert message_modal message_success message_no-content message-modal--content" type="success"><span class="swa-icon swa-icon_extra-large swa-icon_check-circle message--icon" icon="swa-icon_check-circle" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span><div class="message--content"><h2 class="heading heading_medium message--title">Your boarding documents are on their way!</h2></div></div>
+* <div class="overlay-background"><div class="overlay-container overlay-container_no-padding modal-container modal-container_no-outline modal-container_pop-up overlay-container_modal" id="MessageModal_14" style="margin-top: 355px; margin-bottom: 355px;"><div class="overlay-container--content-wrapper"><span class="overlay-container--tab-capture" tabindex="0"></span><div class="overlay-container--content" role="status" tabindex="-1"><div class=""><div class="message message_alert message_modal message_success message_no-content message-modal--content" type="success"><span class="swa-icon swa-icon_extra-large swa-icon_check-circle message--icon" icon="swa-icon_check-circle" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span><div class="message--content"><h2 class="heading heading_medium message--title">Your boarding documents are on their way!</h2></div></div></div></div><span class="overlay-container--tab-capture" tabindex="0"></span></div></div><div class="flyout-portal"></div></div>
+
+TEXT
+* text button
+* <button aria-label="text my boarding Pass document(s)  opens pop up" class="actionable actionable_button actionable_full-width actionable_large-button actionable_no-outline actionable_prefix actionable_secondary-dark-affix button boarding-pass-options--button-text" type="button" data-a="airCheckInBoardingPassOption_button_mobileBoardingPassOption_text"><span class="swa-icon swa-icon_phone actionable--icon actionable--icon_prefix actionable--icon_medium-gap" icon="phone" role="presentation"><span role="presentation" class="swa-icon--icon"></span></span><span class="actionable--text">Text</span></button>
+* text field:
+* <input id="textBoardingPass" maxlength="10" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" aria-required="true" class="input--text" aria-invalid="true" width="large">
+* send text button
+* <button aria-label="Send boarding document(s)" id="form-mixin--submit-button" class="actionable actionable_button actionable_no-outline actionable_primary button submit-button" type="button"><span class="actionable--text"><span class="submit-button--text">Send</span></span></button>
+
+
+
+Strategy for flight persistence:
+_happy path_
+1. Request above info from user
+2. Make request to API and verify that airport exists
+3. Return confirmation to user
+4. Request timezone for airport coordinates provided by prev API call
+5. Persist Flight model with timezone (in GMT)
+_sad path_
+- return errors from form validation if missing info
+- if airport does not exist, return error with message
+- if timezone for airport coordinates is not valid or check-in time occurs in the past then send an email to user saying they will not be checked in
+- if flight persistence failed or quartz job creation failed. Send an email to user saying they will not be checked in
+
+
+Strategy for flight checkin
+_happy path_
+1. When flight is being persisted, create a quartz job that will run on the same date and time and will check in the user
+2. When a job is kicked off:
+	a. Use selenium to go to southwest.com and check user in. Then email/text or both based on the contact info the user provided.
+
+_sad path_
+- Job is kicked off but user cannot be checked in yet:
+	option 1: retry several times before failing
+	option 2: fail immediately.
+	option 3: try several times, if doesn't work. Wait a configured amount of time (1hr?) and try again.
+
+Improvements:
+- Cache the airports/timezones (must be invalidated when daylight savings changes)

@@ -9,6 +9,7 @@ package com.example.southwest.checkin.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,7 +22,7 @@ import javax.persistence.Table;
 import com.example.southwest.checkin.dto.Airport;
 
 @Entity
-@Table(indexes = {@Index(name = "Idx_confirmation",  columnList="confirmationNumber", unique = true)})
+@Table(indexes = {@Index(name = "idx_confirmation",  columnList="confirmationNumber")})
 public class Flight
 {
 	@Id
@@ -35,9 +36,9 @@ public class Flight
 	private String confirmationNumber;
 	@Column(nullable = false)
 	private LocalDateTime departureTime;
-	@ManyToOne(targetEntity = Airport.class)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
 	private Airport departureAirport;
-	@ManyToOne(targetEntity = Airport.class)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false)
 	private Airport destinationAirport;
 	@Column(nullable = false)
 	private String timezone;
@@ -193,5 +194,22 @@ public class Flight
 		result = 31 * result + (departureAirport != null ? departureAirport.hashCode() : 0);
 		result = 31 * result + (destinationAirport != null ? destinationAirport.hashCode() : 0);
 		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Flight{" +
+				"id=" + id +
+				", firstName='" + firstName + '\'' +
+				", lastName='" + lastName + '\'' +
+				", confirmationNumber='" + confirmationNumber + '\'' +
+				", departureTime=" + departureTime +
+				", departureAirport=" + departureAirport +
+				", destinationAirport=" + destinationAirport +
+				", timezone='" + timezone + '\'' +
+				", email='" + email + '\'' +
+				", phoneNumber='" + phoneNumber + '\'' +
+				'}';
 	}
 }

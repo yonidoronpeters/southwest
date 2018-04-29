@@ -8,6 +8,8 @@
 package com.example.southwest.checkin.dto;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Airport
 {
 	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
 	@JsonProperty(value = "iata")
 	private String code;
 	@JsonProperty(value = "name")
