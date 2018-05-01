@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.TimeZone;
 
 import org.quartz.DateBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -36,7 +37,9 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 		final Scheduler sched = schedFact.getScheduler();
 		sched.start();
 
+		final JobDataMap jobData = addFlightToJobContext(flight);
 		final JobDetail job = newJob(TestJob.class)
+				.setJobData(jobData)
 				.withIdentity("checkinJob", flight.getId().toString())
 				.storeDurably()
 				.build();
@@ -55,5 +58,12 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 		LOGGER.info("Scheduling job {} for {}", job.getKey(), flight);
 		// Tell quartz to schedule the job using our trigger
 		sched.scheduleJob(job, trigger);
+	}
+
+	private JobDataMap addFlightToJobContext(final Flight flight)
+	{
+		final JobDataMap map = new JobDataMap();
+		map.put("flight", flight);
+		return map;
 	}
 }
