@@ -19,9 +19,10 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.example.southwest.checkin.job.TestJob;
+import com.example.southwest.checkin.job.SeleniumCheckinJob;
 import com.example.southwest.checkin.model.Flight;
 import com.example.southwest.checkin.service.JobSchedulingService;
 
@@ -29,6 +30,8 @@ import com.example.southwest.checkin.service.JobSchedulingService;
 public class QuartzJobSchedulingService implements JobSchedulingService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(QuartzJobSchedulingService.class);
+	@Value("${southwest.checkin.url:https://www.southwest.com/air/check-in/index.html}")
+	private String checkinUrl;
 
 	@Override
 	public void scheduleCheckinJob(final Flight flight) throws SchedulerException
@@ -38,7 +41,7 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 		sched.start();
 
 		final JobDataMap jobData = addFlightToJobContext(flight);
-		final JobDetail job = newJob(TestJob.class)
+		final JobDetail job = newJob(SeleniumCheckinJob.class)
 				.setJobData(jobData)
 				.withIdentity("checkinJob", flight.getId().toString())
 				.storeDurably()
@@ -64,6 +67,7 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 	{
 		final JobDataMap map = new JobDataMap();
 		map.put("flight", flight);
+		map.put("url", checkinUrl);
 		return map;
 	}
 }

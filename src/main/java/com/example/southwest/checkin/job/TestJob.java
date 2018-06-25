@@ -9,6 +9,8 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.southwest.checkin.model.Flight;
+
 public class TestJob implements Job
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestJob.class);
@@ -16,6 +18,9 @@ public class TestJob implements Job
 	@Override
 	public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException
 	{
-		LOGGER.info("*********** TEST JOB JUST RAN ***********");
-	}           
+		final Object flight = jobExecutionContext.getMergedJobDataMap().get("flight");
+
+		final Flight f = (Flight) flight;
+		LOGGER.info("*********** TEST JOB JUST RAN FOR FLIGHT ***********\n{}", f);
+	}
 }
