@@ -36,6 +36,7 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 	@Override
 	public void scheduleCheckinJob(final Flight flight) throws SchedulerException
 	{
+		// TODO find a persistent scheduler factory
 		final SchedulerFactory schedFact = new StdSchedulerFactory();
 		final Scheduler sched = schedFact.getScheduler();
 		sched.start();
