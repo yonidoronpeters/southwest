@@ -32,6 +32,10 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 	private static final Logger LOGGER = LoggerFactory.getLogger(QuartzJobSchedulingService.class);
 	@Value("${southwest.checkin.url:https://www.southwest.com/air/check-in/index.html}")
 	private String checkinUrl;
+	@Value("${southwest.checkin.attempts.max:5}")
+	private int maxAttempts;
+	@Value("${webdriver.chrome.driver}")
+	private String webDriverLocation;
 
 	@Override
 	public void scheduleCheckinJob(final Flight flight) throws SchedulerException
@@ -69,6 +73,8 @@ public class QuartzJobSchedulingService implements JobSchedulingService
 		final JobDataMap map = new JobDataMap();
 		map.put("flight", flight);
 		map.put("url", checkinUrl);
+		map.put("maxAttempts", maxAttempts);
+		map.put("webDriverLocation", webDriverLocation);
 		return map;
 	}
 }
