@@ -8,12 +8,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -31,9 +28,9 @@ public class SeleniumCheckinJob implements Job
 	private static final String LAST_NAME = "passengerLastName";
 	private static final String UTF_8 = StandardCharsets.UTF_8.name();
 	private static final String SUBMIT_BUTTON_CLASS = "form-mixin--submit-button";
-	private static final int MAX_NUM_OF_ATTEMPTS = 5;
 	private WebDriver driver;
 	private String checkinUrl;
+	private int maxNumOfAttempts;
 
 	@Override
 	public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException
@@ -41,7 +38,8 @@ public class SeleniumCheckinJob implements Job
 		try
 		{
 			LOGGER.info("Running job for check-in: {}", jobExecutionContext.getJobDetail());
-			setUpWebDriver();
+			setUpWebDriver(jobExecutionContext);
+			setMaxNumOfAttempts(jobExecutionContext);
 			setCheckinUrl(jobExecutionContext);
 			final Flight flight = getFlight(jobExecutionContext);
 
@@ -50,6 +48,12 @@ public class SeleniumCheckinJob implements Job
 			LOGGER.info("Checked in successfully to flight {}", flight);
 			sendBoardingPass(flight);
 		}
+		catch (final WebDriverException e)
+		{
+			LOGGER.error("Selenium threw exception.", e);
+			throw new JobExecutionException(e);
+		}
+
 		catch (final RuntimeException e)
 		{
 			LOGGER.error("Exception occurred while executing job {}", jobExecutionContext.getJobDetail(), e);
@@ -67,9 +71,10 @@ public class SeleniumCheckinJob implements Job
 		textBoardingPass(flight);
 	}
 
-	private void setUpWebDriver()
+	private void setUpWebDriver(final JobExecutionContext context)
 	{
-		driver = new FirefoxDriver();
+		System.setProperty("webdriver.chrome.driver", getWebDriverLocation(context));
+		driver = new ChromeDriver();
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 	}
 
@@ -127,16 +132,15 @@ public class SeleniumCheckinJob implements Job
 				driver.findElement(By.id(SUBMIT_BUTTON_CLASS)).click();
 				attempts++;
 				Thread.sleep(300);
-			} while ((attempts < MAX_NUM_OF_ATTEMPTS) && driver.findElement(By.className("retrieve-reservation-form-container--form-wrapper")).isDisplayed());
-		}
-		catch (final WebDriverException e)
-		{
-			LOGGER.error("Selenium threw exception.", e);
-			throw new JobExecutionException(e);
+			} while ((attempts < maxNumOfAttempts) && driver.findElement(By.className("retrieve-reservation-form-container--form-wrapper")).isDisplayed());
+			if (attempts >= maxNumOfAttempts) {
+				LOGGER.error("Exceeded max number ({}) of check-in attempts for {}", maxNumOfAttempts, flight);
+				throw new JobExecutionException("Max number of attempts (" + maxNumOfAttempts + ") was exceeded. Check-in failed for flight with confirmation #" + flight.getConfirmationNumber());
+			}
 		}
 		catch (final InterruptedException e)
 		{
-			LOGGER.error("Interrupted exception {}", e);
+			LOGGER.error("Interrupted exception", e);
 			throw new JobExecutionException(e);
 		}
 	}
@@ -165,15 +169,24 @@ public class SeleniumCheckinJob implements Job
 		checkinUrl = (String) context.getMergedJobDataMap().get("url");
 	}
 
+	private void setMaxNumOfAttempts(final JobExecutionContext context)
+	{
+		 maxNumOfAttempts = (int) context.getMergedJobDataMap().get("maxAttempts");
+	}
+
+	private String getWebDriverLocation(final JobExecutionContext context)
+	{
+		return (String) context.getMergedJobDataMap().get("webDriverLocation");
+	}
+
 	private String checkinUrlWithParameters(final Flight flight) throws UnsupportedEncodingException
 	{
-		return new StringBuilder(checkinUrl)
-				.append("?")
-				.append(CONFIRMATION_NUMBER).append("=").append(URLEncoder.encode(flight.getConfirmationNumber(), UTF_8))
-				.append("&")
-				.append(FIRST_NAME).append("=").append(URLEncoder.encode(flight.getFirstName(), UTF_8))
-				.append("&")
-				.append(LAST_NAME).append("=").append(URLEncoder.encode(flight.getLastName(), UTF_8))
-				.toString();
+		return checkinUrl +
+				"?" +
+				CONFIRMATION_NUMBER + "=" + URLEncoder.encode(flight.getConfirmationNumber(), UTF_8) +
+				"&" +
+				FIRST_NAME + "=" + URLEncoder.encode(flight.getFirstName(), UTF_8) +
+				"&" +
+				LAST_NAME + "=" + URLEncoder.encode(flight.getLastName(), UTF_8);
 	}
 }

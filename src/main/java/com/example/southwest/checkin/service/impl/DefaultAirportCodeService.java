@@ -3,17 +3,15 @@
  */
 package com.example.southwest.checkin.service.impl;
 
-import java.net.URI;
-
+import com.example.southwest.checkin.dto.Airport;
+import com.example.southwest.checkin.service.AirportCodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
-
-import com.example.southwest.checkin.dto.Airport;
-import com.example.southwest.checkin.service.AirportCodeService;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class DefaultAirportCodeService implements AirportCodeService
@@ -22,19 +20,18 @@ public class DefaultAirportCodeService implements AirportCodeService
 
 	@Value("${southwest.flight.api.url}")
 	private String url;
-	private final RestTemplate restTemplate;
-
-	public DefaultAirportCodeService(final RestTemplate restTemplate)
-	{
-		this.restTemplate = restTemplate;
-	}
 
 	@Override
 	public Airport getByCode(final String code)
 	{
 		Assert.notNull(code, "code cannot be null");
 
-		final Airport airport = restTemplate.getForObject(URI.create(url + code), Airport.class);
+		final Airport airport = WebClient.create()
+				.get()
+				.uri(url + code)
+				.retrieve()
+				.bodyToMono(Airport.class)
+				.block();
 		LOGGER.info("Retrieved airport: {}", airport);
 		return airport;
 	}

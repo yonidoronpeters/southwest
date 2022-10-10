@@ -40,7 +40,7 @@ public class DefaultTimezoneService implements TimezoneService
 		{
 			return null;
 		}
-		final String queryUrl = new StringBuilder(150).append(url).append("location=").append(latitude).append(",").append(longitude).append("&apiKey=").append(apiKey).append("&timestamp=").append(dateTime.toEpochSecond(ZoneOffset.UTC)).toString();
+		final String queryUrl = url + "location=" + latitude + "," + longitude + "&key=" + apiKey + "&timestamp=" + dateTime.toEpochSecond(ZoneOffset.UTC);
 		final TimeZoneDTO timeZoneDTO = restTemplate.getForObject(URI.create(queryUrl), TimeZoneDTO.class);
 		if (timeZoneDTO == null || !"OK".equals(timeZoneDTO.getStatus()))
 		{
